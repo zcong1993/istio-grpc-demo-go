@@ -25,7 +25,7 @@ func main() {
 	client := pb.NewUuidServiceClient(c)
 
 	r := gin.Default()
-	r.GET("/*", func(c *gin.Context) {
+	r.GET("/*all", func(c *gin.Context) {
 		ctx := tracing.Http2grpc(context.Background(), c.Request.Header)
 		resp, err := client.Uuid(ctx, &pb.Request{})
 		if err != nil {
