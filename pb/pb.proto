@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+
+
+service UuidService {
+    rpc Uuid(Request) returns (Response);
+}
+
+message Request {
+    string type = 1;
+}
+
+message Response {
+    string uuid = 1;
+}
