@@ -14,6 +14,7 @@ import (
 func main() {
 	var (
 		UPSTREAM = os.Getenv("UPSTREAM")
+		APP_NEME = os.Getenv("APP_NAME")
 	)
 
 	c, err := grpc.Dial(UPSTREAM, grpc.WithInsecure())
@@ -32,6 +33,7 @@ func main() {
 			c.AbortWithError(500, err)
 			return
 		}
+		resp.Tracing = fmt.Sprintf("%s -> %s", resp.Tracing, APP_NEME)
 		c.JSON(200, resp)
 	})
 

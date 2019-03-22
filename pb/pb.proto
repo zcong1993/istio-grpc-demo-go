@@ -13,4 +13,5 @@ message Request {
 
 message Response {
     string uuid = 1;
+    string tracing = 2;
 }

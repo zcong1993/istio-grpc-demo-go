@@ -21,16 +21,23 @@ func envOrDefault(key, defaultVal string) string {
 
 // HelloService is our grpc service
 type UuidService struct {
-	client pb.UuidServiceClient
+	client  pb.UuidServiceClient
+	appName string
 }
 
 // Echo impl Echo method
 func (service *UuidService) Uuid(ctx context.Context, in *pb.Request) (*pb.Response, error) {
 	fmt.Printf("recieve message: %+v\n", in)
-	return service.client.Uuid(tracing.Grpc2Grpc(ctx), in)
+	resp, err := service.client.Uuid(tracing.Grpc2Grpc(ctx), in)
+	if err != nil {
+		fmt.Printf("uuid err: %+v\n", err)
+		return nil, err
+	}
+	resp.Tracing = fmt.Sprintf("%s -> %s", resp.Tracing, service.appName)
+	return resp, nil
 }
 
-func runRpcServer(port, upstream string) {
+func runRpcServer(port, upstream, appName string) {
 	c, err := grpc.Dial(upstream, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
@@ -39,7 +46,7 @@ func runRpcServer(port, upstream string) {
 	client := pb.NewUuidServiceClient(c)
 
 	ss := grpc.NewServer()
-	pb.RegisterUuidServiceServer(ss, &UuidService{client: client})
+	pb.RegisterUuidServiceServer(ss, &UuidService{client: client, appName: appName})
 
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
@@ -54,6 +61,7 @@ func main() {
 	var (
 		PORT     = envOrDefault("PORT", ":1234")
 		UPSTREAM = envOrDefault("UPSTREAM", "")
+		APP_NAME = envOrDefault("APP_NAME", "middleware-go")
 	)
-	runRpcServer(PORT, UPSTREAM)
+	runRpcServer(PORT, UPSTREAM, APP_NAME)
 }
