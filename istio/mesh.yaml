@@ -1,0 +1,80 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: grpc-server-go
+spec:
+  hosts:
+    - grpc-server-go
+  http:
+    - route:
+        - destination:
+            host: grpc-server-go
+            subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: grpc-server-go
+spec:
+  host: grpc-server-go
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: grpc-web-go
+spec:
+  hosts:
+    - grpc-web-go
+  http:
+    - route:
+        - destination:
+            host: grpc-web-go
+            subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: grpc-web-go
+spec:
+  host: grpc-web-go
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: grpc-middleware-go
+spec:
+  hosts:
+    - grpc-middleware-go
+  http:
+    - route:
+        - destination:
+            host: grpc-middleware-go
+            subset: v1
+          weight: 50
+        - destination:
+            host: grpc-middleware-go
+            subset: v2
+          weight: 50
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: grpc-middleware-go
+spec:
+  host: grpc-middleware-go
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+    - name: v2
+      labels:
+        version: v2

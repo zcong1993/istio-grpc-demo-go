@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-web-go
+  labels:
+    app: grpc-web-go
+    service: grpc-web-go
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http
+  selector:
+    app: grpc-web-go
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grpc-web-go-v1
+  labels:
+    app: grpc-web-go
+    version: v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grpc-web-go
+        version: v1
+    spec:
+      containers:
+        - name: grpc-web-go
+          image: zcong/istio-grpc-demo-go:latest
+          imagePullPolicy: IfNotPresent
+          command: ['web']
+          env:
+            - name: UPSTREAM
+              value: 'grpc-middleware-go:80'
+            - name: APP_NAME
+              value: grpc-web-go
+          ports:
+            - containerPort: 8080

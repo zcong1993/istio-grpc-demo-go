@@ -1,0 +1,72 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-middleware-go
+  labels:
+    app: grpc-middleware-go
+    service: grpc-middleware-go
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 1234
+      name: grpc
+  selector:
+    app: grpc-middleware-go
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata :
+  name: grpc-middleware-go-v1
+  labels:
+    app: grpc-middleware-go
+    version: v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grpc-middleware-go
+        version: v1
+    spec:
+      containers:
+        - name: grpc-middleware-go
+          image: zcong/istio-grpc-demo-go:latest
+          imagePullPolicy: IfNotPresent
+          command: ['middleware']
+          env:
+            - name: UPSTREAM
+              value: 'grpc-server-go:80'
+            - name: APP_NAME
+              value: grpc-middleware-go
+          ports:
+            - containerPort: 1234
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grpc-middleware-go-v2
+  labels:
+    app: grpc-middleware-go
+    version: v2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grpc-middleware-go
+        version: v2
+    spec:
+      containers:
+        - name: grpc-middleware-go
+          image: zcong/istio-grpc-demo-go:latest
+          imagePullPolicy: IfNotPresent
+          command: ['middleware']
+          env:
+            - name: UPSTREAM
+              value: 'grpc-server-go:80'
+            - name: APP_NAME
+              value: grpc-middleware-go-v2
+          ports:
+            - containerPort: 1234

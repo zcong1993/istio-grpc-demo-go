@@ -7,6 +7,7 @@ import (
 	"github.com/zcong1993/istio-grpc-demo-go/pb"
 	"github.com/zcong1993/istio-helpers/tracing"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"log"
 	"os"
 )
@@ -26,7 +27,12 @@ func main() {
 
 	r := gin.Default()
 	r.GET("/*all", func(c *gin.Context) {
-		ctx := tracing.Http2grpc(context.Background(), c.Request.Header)
+		fmt.Printf("incoming tracing: %+v\n", c.Request.Header)
+		ctx := tracing.Http2grpc(context.Background(), tracing.DefaultTracingKeysWeb, c.Request.Header)
+		omd, ok := metadata.FromOutgoingContext(ctx)
+		if ok {
+			fmt.Printf("outgoing tracing: %+v\n", omd)
+		}
 		resp, err := client.Uuid(ctx, &pb.Request{})
 		if err != nil {
 			fmt.Printf("err: %+v\n", err)

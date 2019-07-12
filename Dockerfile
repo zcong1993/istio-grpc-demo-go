@@ -1,8 +1,11 @@
 FROM golang:1.11.1 AS build
 WORKDIR /mnt
+ADD go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o ./bin/server main.go
-RUN CGO_ENABLED=0 go build -o ./bin/web web/main.go
+RUN CGO_ENABLED=0 go build -o ./bin/server ./cmd/server/main.go
+RUN CGO_ENABLED=0 go build -o ./bin/web ./cmd/web/main.go
+RUN CGO_ENABLED=0 go build -o ./bin/middleware ./cmd/middleware/main.go
 
 FROM alpine:3.7
 WORKDIR /opt
