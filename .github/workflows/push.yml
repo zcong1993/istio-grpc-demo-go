@@ -1,0 +1,21 @@
+on: push
+name: Docker Build and Push
+jobs:
+  dockerLogin:
+    name: Docker Login
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Docker Login
+      uses: actions/docker/login@aea64bb1b97c42fa69b90523667fef56b90d7cff
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+    - name: Docker Build
+      uses: actions/docker/cli@aea64bb1b97c42fa69b90523667fef56b90d7cff
+      with:
+        args: build -t zcong/istio-grpc-demo-go .
+    - name: Docker Push
+      uses: actions/docker/cli@aea64bb1b97c42fa69b90523667fef56b90d7cff
+      with:
+        args: push zcong/istio-grpc-demo-go
